@@ -41,6 +41,7 @@ dependencies:
   json_annotation: ^4.9.0
   path: ^1.9.1
   sembast: ^3.8.5+2
+  win32_registry: ^2.1.0
 
 dev_dependencies:
   flutter_test:
