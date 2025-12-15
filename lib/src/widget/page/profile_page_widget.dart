@@ -37,6 +37,8 @@ class ProfilePageWidget extends ConsumerWidget {
 
   static final page = HomePage(
     body: (context, ref) => const ProfilePageWidget(),
+    label: 'Home',
+    icon: Icons.home,
     actions: (context, ref) => [
       IconButton(
         onPressed: () async {

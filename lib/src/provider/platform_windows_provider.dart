@@ -1,17 +1,31 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:win32_registry/win32_registry.dart';
 
+final omoriInstalledProvider = NotifierProvider(
+  () => Win32RegistryInt32Provider(_omoriKey, 'Installed'),
+);
+
 final steamPathProvider = NotifierProvider(
   () => Win32RegistryStringProvider(_steamKey, 'SteamPath'),
 );
 
 final _steamKey = Registry.currentUser.createKey(r'Software\Valve\Steam');
+final _omoriKey = Registry.currentUser.createKey(
+  r'Software\Valve\Steam\Apps\1150690',
+);
 
 class Win32RegistryStringProvider extends _Win32RegistryProvider<String> {
   Win32RegistryStringProvider(super.key, super.name);
 
   @override
   String? _convert(value) => (value as StringValue).value;
+}
+
+class Win32RegistryInt32Provider extends _Win32RegistryProvider<int> {
+  Win32RegistryInt32Provider(super.key, super.name);
+
+  @override
+  int? _convert(value) => (value as Int32Value).value;
 }
 
 abstract class _Win32RegistryProvider<T> extends Notifier<T?> {
