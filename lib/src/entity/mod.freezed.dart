@@ -24,6 +24,9 @@ mixin _$Mod {
   $ModCopyWith<Mod> get copyWith =>
       _$ModCopyWithImpl<Mod>(this as Mod, _$identity);
 
+  /// Serializes this Mod to a JSON map.
+  Map<String, dynamic> toJson();
+
 
   @override
   bool operator ==(Object other) {
@@ -33,7 +36,7 @@ mixin _$Mod {
                 other.manifest == manifest));
   }
 
-
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, manifest);
 
@@ -58,7 +61,6 @@ abstract mixin class $ModCopyWith<$Res> {
   $ModManifestCopyWith<$Res> get manifest;
 
 }
-
 /// @nodoc
 class _$ModCopyWithImpl<$Res>
     implements $ModCopyWith<$Res> {
@@ -120,62 +122,12 @@ extension ModPatterns on Mod {
 
   (
 
-  {
-
-  TResult
-
-  Function
-
-  (
-
-  ZipMod
-
-  value
-
-  )
-
-  ?
-
-  zip
-
-  ,
-
-  TResult
-
-  Function
-
-  (
-
-  DirMod
-
-  value
-
-  )
-
-  ?
-
-  dir
-
-  ,
-
-  required
-
-  TResult
-
-  orElse
-
-  (
-
-  )
-
-  ,
-}){
+  TResult Function( _Mod value)? $default,{required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case ZipMod() when zip != null:
-return zip(_that);case DirMod() when dir != null:
-return dir(_that);case _:
-return orElse();
+  case _Mod() when $default != null:
+  return $default(_that);case _:
+  return orElse();
 
 }
 }
@@ -192,18 +144,15 @@ return orElse();
 /// }
 /// ```
 
-@optionalTypeArgs
-TResult map<TResult extends Object?>(
-    {required TResult Function( ZipMod value) zip, required TResult Function( DirMod value) dir,}) {
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _Mod value) $default,){
   final _that = this;
   switch (_that) {
-    case ZipMod():
-      return zip(_that);
-    case DirMod():
-      return dir(_that);
+  case _Mod():
+  return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
   }
 }
-
 /// A variant of `map` that fallback to returning `null`.
 ///
 /// It is equivalent to doing:
@@ -216,20 +165,15 @@ TResult map<TResult extends Object?>(
 /// }
 /// ```
 
-@optionalTypeArgs
-TResult? mapOrNull<TResult extends Object?>(
-    {TResult? Function( ZipMod value)? zip, TResult? Function( DirMod value)? dir,}) {
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _Mod value)? $default,){
   final _that = this;
   switch (_that) {
-    case ZipMod() when zip != null:
-      return zip(_that);
-    case DirMod() when dir != null:
-      return dir(_that);
-    case _:
-      return null;
+  case _Mod() when $default != null:
+  return $default(_that);case _:
+  return null;
+
   }
 }
-
 /// A variant of `when` that fallback to an `orElse` callback.
 ///
 /// It is equivalent to doing:
@@ -242,35 +186,10 @@ TResult? mapOrNull<TResult extends Object?>(
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen
-<
-TResult extends Object?>(
-{
-TResult
-Function
-(
-ModManifest
-manifest
-)
-?
-zip
-,
-TResult
-Function
-(
-ModManifest
-manifest
-)
-?
-dir
-,
-required
-TResult
-orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ModManifest manifest)? $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case ZipMod() when zip != null:
-return zip(_that.manifest);case DirMod() when dir != null:
-return dir(_that.manifest);case _:
+case _Mod() when $default != null:
+return $default(_that.manifest);case _:
 return orElse();
 
 }
@@ -288,11 +207,13 @@ return orElse();
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( ModManifest manifest) zip,required TResult Function( ModManifest manifest) dir,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ModManifest manifest) $default,) {final _that = this;
 switch (_that) {
-case ZipMod():
-return zip(_that.manifest);case DirMod():
-return dir(_that.manifest);}
+case _Mod():
+return $default(_that.manifest);case _:
+throw StateError('Unexpected subclass');
+
+}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -306,12 +227,11 @@ return dir(_that.manifest);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( ModManifest manifest)? zip,TResult? Function( ModManifest manifest)? dir,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ModManifest manifest)? $default,) {final _that = this;
 switch (_that) {
-case ZipMod() when zip != null:
-return zip(_that.manifest);case DirMod() when dir != null:
-return dir(_that.manifest);case _:
-return null;
+  case _Mod() when $default != null:
+  return $default(_that.manifest);case _:
+  return null;
 
 }
 }
@@ -319,44 +239,51 @@ return null;
 }
 
 /// @nodoc
+@JsonSerializable()
 
+class _Mod implements Mod {
+  const _Mod({required this.manifest});
+  factory _Mod.fromJson(Map<String, dynamic> json) => _$ModFromJson(json);
 
-class ZipMod implements Mod {
-const ZipMod({required this.manifest});
-
-
-@override final ModManifest manifest;
+  @override final ModManifest manifest;
 
 /// Create a copy of Mod
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$ZipModCopyWith<ZipMod> get copyWith => _$ZipModCopyWithImpl<ZipMod>(this, _$identity);
+_$ModCopyWith<_Mod> get copyWith => __$ModCopyWithImpl<_Mod>(this, _$identity);
 
+@override
+Map<String, dynamic> toJson() {
+  return _$ModToJson(this,);
+}
 
 @override
 bool operator ==(Object other) {
-return identical(this, other) || (other.runtimeType == runtimeType&&other is ZipMod&&(identical(other.manifest, manifest) || other.manifest == manifest));
+  return identical(this, other) ||
+      (other.runtimeType == runtimeType && other is _Mod &&
+          (identical(other.manifest, manifest) || other.manifest == manifest));
 }
 
-
+  @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode => Object.hash(runtimeType,manifest);
 
 @override
 String toString() {
-return 'Mod.zip(manifest: $manifest)';
+  return 'Mod(manifest: $manifest)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $ZipModCopyWith<$Res> implements $ModCopyWith<$Res> {
-factory $ZipModCopyWith(ZipMod value, $Res Function(ZipMod) _then) = _$ZipModCopyWithImpl;
+abstract mixin class _$ModCopyWith<$Res> implements $ModCopyWith<$Res> {
+  factory _$ModCopyWith(_Mod value,
+      $Res Function(_Mod) _then) = __$ModCopyWithImpl;
 @override @useResult
 $Res call({
-ModManifest manifest
+  ModManifest manifest
 });
 
 
@@ -364,20 +291,20 @@ ModManifest manifest
 
 }
 /// @nodoc
-class _$ZipModCopyWithImpl<$Res>
-implements $ZipModCopyWith<$Res> {
-_$ZipModCopyWithImpl(this._self, this._then);
+class __$ModCopyWithImpl<$Res>
+    implements _$ModCopyWith<$Res> {
+  __$ModCopyWithImpl(this._self, this._then);
 
-final ZipMod _self;
-final $Res Function(ZipMod) _then;
+  final _Mod _self;
+  final $Res Function(_Mod) _then;
 
 /// Create a copy of Mod
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? manifest = null,}) {
-return _then(ZipMod(
+  return _then(_Mod(
 manifest: null == manifest ? _self.manifest : manifest // ignore: cast_nullable_to_non_nullable
 as ModManifest,
-));
+  ));
 }
 
 /// Create a copy of Mod
@@ -385,84 +312,9 @@ as ModManifest,
 @override
 @pragma('vm:prefer-inline')
 $ModManifestCopyWith<$Res> get manifest {
-
-return $ModManifestCopyWith<$Res>(_self.manifest, (value) {
-return _then(_self.copyWith(manifest: value));
-});
-}
-}
-
-/// @nodoc
-
-
-class DirMod implements Mod {
-const DirMod({required this.manifest});
-
-
-@override final ModManifest manifest;
-
-/// Create a copy of Mod
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$DirModCopyWith<DirMod> get copyWith => _$DirModCopyWithImpl<DirMod>(this, _$identity);
-
-
-@override
-bool operator ==(Object other) {
-return identical(this, other) || (other.runtimeType == runtimeType&&other is DirMod&&(identical(other.manifest, manifest) || other.manifest == manifest));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,manifest);
-
-@override
-String toString() {
-return 'Mod.dir(manifest: $manifest)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $DirModCopyWith<$Res> implements $ModCopyWith<$Res> {
-factory $DirModCopyWith(DirMod value, $Res Function(DirMod) _then) = _$DirModCopyWithImpl;
-@override @useResult
-$Res call({
-ModManifest manifest
-});
-
-
-@override $ModManifestCopyWith<$Res> get manifest;
-
-}
-/// @nodoc
-class _$DirModCopyWithImpl<$Res>
-implements $DirModCopyWith<$Res> {
-_$DirModCopyWithImpl(this._self, this._then);
-
-final DirMod _self;
-final $Res Function(DirMod) _then;
-
-/// Create a copy of Mod
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? manifest = null,}) {
-return _then(DirMod(
-manifest: null == manifest ? _self.manifest : manifest // ignore: cast_nullable_to_non_nullable
-as ModManifest,
-));
-}
-
-/// Create a copy of Mod
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$ModManifestCopyWith<$Res> get manifest {
-
-return $ModManifestCopyWith<$Res>(_self.manifest, (value) {
-return _then(_self.copyWith(manifest: value));
-});
+  return $ModManifestCopyWith<$Res>(_self.manifest, (value) {
+    return _then(_self.copyWith(manifest: value));
+  });
 }
 }
 

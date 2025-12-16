@@ -69,7 +69,6 @@ abstract mixin class $ModManifestCopyWith<$Res> {
 
 
 }
-
 /// @nodoc
 class _$ModManifestCopyWithImpl<$Res>
     implements $ModManifestCopyWith<$Res> {
@@ -251,6 +250,7 @@ extension ModManifestPatterns on ModManifest {
 
 /// @nodoc
 @JsonSerializable()
+
 class _ModManifest implements ModManifest {
   const _ModManifest(
       {required this.name, required this.id, required this.description, required this.version});
@@ -313,7 +313,6 @@ abstract mixin class _$ModManifestCopyWith<$Res>
 
 
 }
-
 /// @nodoc
 class __$ModManifestCopyWithImpl<$Res>
     implements _$ModManifestCopyWith<$Res> {

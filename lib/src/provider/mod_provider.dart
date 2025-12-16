@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:abbi/src/entity/mod_manifest.dart';
+import 'package:abbi/src/provider/hash_cache_provider.dart';
 import 'package:abbi/src/provider/omori_provider.dart';
 import 'package:archive/archive.dart';
 import 'package:flutter/foundation.dart';
@@ -11,6 +12,7 @@ import 'package:path/path.dart' as $path;
 import 'package:synchronized/synchronized.dart';
 
 import '../entity/mod.dart';
+import 'mod_store_provider.dart';
 
 final modFilesProvider = AsyncNotifierProvider(ModFilesNotifier.new);
 
@@ -21,7 +23,13 @@ final modProvider = FutureProvider.family<Mod?, FileSystemEntity>((
   final lock = ref.watch(_modLockProvider);
   return lock.synchronized(() async {
     if (entity is File) {
-      return await compute((File file) {
+      final (hash, ok) = await ref
+          .read(hashCacheProvider.notifier)
+          .find(entity);
+      if (ok) {
+        return ref.watch(modStoreProvider(hash).future);
+      }
+      final mod = await compute((File file) {
         final stream = InputFileStream(file.path);
         try {
           final zip = ZipDecoder().decodeStream(stream);
@@ -35,11 +43,13 @@ final modProvider = FutureProvider.family<Mod?, FileSystemEntity>((
           final manifest = ModManifest.fromJson(
             jsonDecode(utf8.decode(manifestFile.readBytes()!)),
           );
-          return ZipMod(manifest: manifest);
+          return Mod(manifest: manifest);
         } finally {
           stream.close();
         }
       }, entity);
+      await ref.read(modStoreProvider(hash).notifier).put(mod!);
+      return mod;
     }
     if (entity is Directory) {
       final manifestFile = File($path.join(entity.path, _manifestFileName));
@@ -47,7 +57,7 @@ final modProvider = FutureProvider.family<Mod?, FileSystemEntity>((
       final manifest = ModManifest.fromJson(
         jsonDecode(await manifestFile.readAsString()),
       );
-      return DirMod(manifest: manifest);
+      return Mod(manifest: manifest);
     }
     return null;
   });

@@ -3,10 +3,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'mod_manifest.dart';
 
 part 'mod.freezed.dart';
+part 'mod.g.dart';
 
 @freezed
-sealed class Mod with _$Mod {
-  const factory Mod.zip({required ModManifest manifest}) = ZipMod;
+abstract class Mod with _$Mod {
+  const factory Mod({required ModManifest manifest}) = _Mod;
 
-  const factory Mod.dir({required ModManifest manifest}) = DirMod;
+  factory Mod.fromJson(Map<String, dynamic> json) => _$ModFromJson(json);
 }
