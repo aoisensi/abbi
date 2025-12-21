@@ -1,8 +1,8 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:abbi/src/entity/mod_manifest.dart';
+import 'package:abbi/src/provider/file_provider.dart';
 import 'package:abbi/src/provider/hash_cache_provider.dart';
 import 'package:abbi/src/provider/omori_provider.dart';
 import 'package:archive/archive.dart';
@@ -13,8 +13,6 @@ import 'package:synchronized/synchronized.dart';
 
 import '../entity/mod.dart';
 import 'mod_store_provider.dart';
-
-final modFilesProvider = AsyncNotifierProvider(ModFilesNotifier.new);
 
 final modProvider = FutureProvider.family<Mod?, FileSystemEntity>((
   ref,
@@ -63,15 +61,11 @@ final modProvider = FutureProvider.family<Mod?, FileSystemEntity>((
   });
 });
 
-class ModFilesNotifier extends AsyncNotifier<Set<FileSystemEntity>> {
-  @override
-  FutureOr<Set<FileSystemEntity>> build() async {
-    final path = await ref.watch(_availableModsPathProvider.future);
-    if (path == null) throw 'OMORI is not installed';
-    final directory = Directory(path);
-    return await directory.list().toSet();
-  }
-}
+final modFilesProvider = FutureProvider((ref) async {
+  final path = await ref.watch(_availableModsPathProvider.future);
+  if (path == null) throw 'OMORI is not installed';
+  return await ref.watch(directoryWatchProvider(path).future);
+});
 
 final _modLockProvider = Provider((_) => Lock());
 
