@@ -14,12 +14,23 @@ class ModsPageWidget extends ConsumerWidget {
     final asyncModFiles = ref.watch(modFilesProvider);
     if (asyncModFiles.hasValue) {
       final modFiles = asyncModFiles.requireValue.toList();
-      return ListView.builder(
-        itemBuilder: (context, index) {
-          final entity = modFiles[index];
-          return _ModsPageCardWidget(entity);
-        },
-        itemCount: modFiles.length,
+      return Stack(
+        children: [
+          ListView.builder(
+            itemBuilder: (context, index) {
+              final entity = modFiles[index];
+              return _ModsPageCardWidget(entity);
+            },
+            itemCount: modFiles.length,
+          ),
+          if (ref.watch(modLoadingProvider))
+            const Positioned(
+              top: 0.0,
+              left: 0.0,
+              right: 0.0,
+              child: LinearProgressIndicator(),
+            ),
+        ],
       );
     }
     if (asyncModFiles.hasError) {

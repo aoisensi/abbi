@@ -4,12 +4,12 @@ import 'dart:io';
 import 'package:abbi/src/entity/mod_manifest.dart';
 import 'package:abbi/src/provider/file_provider.dart';
 import 'package:abbi/src/provider/hash_cache_provider.dart';
+import 'package:abbi/src/provider/lock_provider.dart';
 import 'package:abbi/src/provider/omori_provider.dart';
 import 'package:archive/archive.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as $path;
-import 'package:synchronized/synchronized.dart';
 
 import '../entity/mod.dart';
 import 'mod_store_provider.dart';
@@ -18,7 +18,7 @@ final modProvider = FutureProvider.family<Mod?, FileSystemEntity>((
   ref,
   entity,
 ) async {
-  final lock = ref.watch(_modLockProvider);
+  final lock = ref.read(_modLockProvider.notifier);
   return lock.synchronized(() async {
     if (entity is File) {
       final (hash, ok) = await ref
@@ -67,7 +67,13 @@ final modFilesProvider = FutureProvider((ref) async {
   return await ref.watch(directoryWatchProvider(path).future);
 });
 
-final _modLockProvider = Provider((_) => Lock());
+final modLoadingProvider = Provider(
+  (ref) =>
+      !ref.watch(modFilesProvider).hasValue ||
+      ref.watch(inLockProvider(ref.watch(_modLockProvider))),
+);
+
+final _modLockProvider = NotifierProvider(LockNotifier.new);
 
 final _availableModsPathProvider = FutureProvider((ref) async {
   final omoriPath = await ref.watch(omoriPathProvider.future);
