@@ -1,40 +1,30 @@
-import 'dart:io';
-
 import 'package:abbi/src/provider/mod_provider.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../home_widget.dart';
+
+part 'mods/mod_id_card_widget.dart';
 
 class ModsPageWidget extends ConsumerWidget {
   const ModsPageWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncModFiles = ref.watch(modFilesProvider);
-    if (asyncModFiles.hasValue) {
-      final modFiles = asyncModFiles.requireValue.toList();
-      return Stack(
-        children: [
-          ListView.builder(
-            itemBuilder: (context, index) {
-              final entity = modFiles[index];
-              return _ModsPageCardWidget(entity);
-            },
-            itemCount: modFiles.length,
-          ),
-          if (ref.watch(modLoadingProvider))
-            const Positioned(
-              top: 0.0,
-              left: 0.0,
-              right: 0.0,
-              child: LinearProgressIndicator(),
-            ),
-        ],
+    final asyncModIds = ref.watch(_loadedModIdsProvider);
+    if (asyncModIds.hasValue) {
+      final ids = asyncModIds.requireValue.sorted().toList();
+      return ListView.builder(
+        itemBuilder: (context, index) {
+          final id = ids[index];
+          return _ModIdCardWidget(id);
+        },
+        itemCount: ids.length,
       );
     }
-    if (asyncModFiles.hasError) {
-      return Center(child: Text(asyncModFiles.error.toString()));
+    if (asyncModIds.hasError) {
+      return Center(child: Text(asyncModIds.error.toString()));
     }
     return const Center(child: CircularProgressIndicator());
   }
@@ -54,24 +44,15 @@ class ModsPageWidget extends ConsumerWidget {
   );
 }
 
-class _ModsPageCardWidget extends ConsumerWidget {
-  final FileSystemEntity entity;
+final _loadedModIdsProvider = FutureProvider((ref) async {
+  final mods = await ref.watch(_loadedModsProvider.future);
+  return mods.map((mod) => mod.manifest.id).toSet();
+});
 
-  const _ModsPageCardWidget(this.entity);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final asyncMod = ref.watch(modProvider(entity));
-    if (asyncMod.hasValue) {
-      final mod = asyncMod.requireValue;
-      if (mod == null) {
-        return const Card(child: ListTile(title: Text('Not Mod file')));
-      }
-      return Card(child: ListTile(title: Text(mod.manifest.name)));
-    }
-    if (asyncMod.hasError) {
-      return Card(child: ListTile(title: Text(asyncMod.error.toString())));
-    }
-    return const Card(child: ListTile(leading: CircularProgressIndicator()));
-  }
-}
+final _loadedModsProvider = FutureProvider((ref) async {
+  final mods = await ref.watch(allModProvider.future);
+  return mods
+      .where((async) => async.hasValue)
+      .map((async) => async.requireValue)
+      .toSet();
+});

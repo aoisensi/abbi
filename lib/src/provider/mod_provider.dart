@@ -14,7 +14,12 @@ import 'package:path/path.dart' as $path;
 import '../entity/mod.dart';
 import 'mod_store_provider.dart';
 
-final modProvider = FutureProvider.family<Mod?, FileSystemEntity>((
+final allModProvider = FutureProvider((ref) async {
+  final files = await ref.watch(modFilesProvider.future);
+  return files.map((file) => ref.watch(modProvider(file))).toSet();
+});
+
+final modProvider = FutureProvider.family<Mod, FileSystemEntity>((
   ref,
   entity,
 ) async {
@@ -25,7 +30,8 @@ final modProvider = FutureProvider.family<Mod?, FileSystemEntity>((
           .read(hashCacheProvider.notifier)
           .find(entity);
       if (ok) {
-        return ref.watch(modStoreProvider(hash).future);
+        final mod = (await ref.watch(modStoreProvider(hash).future))!;
+        return mod;
       }
       final mod = await compute((File file) {
         final stream = InputFileStream(file.path);
@@ -34,10 +40,10 @@ final modProvider = FutureProvider.family<Mod?, FileSystemEntity>((
           final roots = zip.files
               .map((file) => $path.split(file.name).first)
               .toSet();
-          if (roots.length != 1) return null;
+          if (roots.length != 1) throw 'the file is not a mod';
           final id = roots.first;
           final manifestFile = zip.find('$id/$_manifestFileName');
-          if (manifestFile == null) return null;
+          if (manifestFile == null) throw 'the file is not a mod';
           final manifest = ModManifest.fromJson(
             jsonDecode(utf8.decode(manifestFile.readBytes()!)),
           );
@@ -51,13 +57,13 @@ final modProvider = FutureProvider.family<Mod?, FileSystemEntity>((
     }
     if (entity is Directory) {
       final manifestFile = File($path.join(entity.path, _manifestFileName));
-      if (!await manifestFile.exists()) return null;
+      if (!await manifestFile.exists()) throw 'the file is not a mod';
       final manifest = ModManifest.fromJson(
         jsonDecode(await manifestFile.readAsString()),
       );
       return Mod(manifest: manifest);
     }
-    return null;
+    throw 'the file is not a mod';
   });
 });
 
